@@ -61,10 +61,11 @@ export async function POST(request: NextRequest) {
       const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
       if (cloudName && apiKey && apiSecret) {
-        // Upload to Cloudinary REST API
+        // Upload to Cloudinary REST API with valid alphabetical signature
         try {
           const timestamp = Math.floor(Date.now() / 1000);
-          const signaturePayload = `timestamp=${timestamp}${apiSecret}`;
+          const folder = 'campusloop';
+          const signaturePayload = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
           const signature = crypto.createHash('sha1').update(signaturePayload).digest('hex');
 
           const cldFormData = new FormData();
@@ -72,8 +73,8 @@ export async function POST(request: NextRequest) {
           cldFormData.append('file', blob, file.name);
           cldFormData.append('api_key', apiKey);
           cldFormData.append('timestamp', String(timestamp));
+          cldFormData.append('folder', folder);
           cldFormData.append('signature', signature);
-          cldFormData.append('folder', 'campusloop');
 
           const cldRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
             method: 'POST',
@@ -86,10 +87,12 @@ export async function POST(request: NextRequest) {
               uploadedUrls.push(cldData.secure_url);
               continue;
             }
+          } else {
+            const errData = await cldRes.json().catch(() => ({}));
+            console.error('Cloudinary upload returned non-OK status:', cldRes.status, errData);
           }
-          console.warn('Cloudinary upload returned non-OK status, falling back to local storage');
         } catch (cldErr) {
-          console.warn('Cloudinary upload failed, falling back to local disk storage:', cldErr);
+          console.error('Cloudinary upload failed, falling back to local disk storage:', cldErr);
         }
       }
 
