@@ -255,7 +255,7 @@ function AdminContent() {
 
         <div className="grid lg:grid-cols-[230px_1fr] gap-6">
           {/* Sidebar */}
-          <aside className="space-y-1">
+          <aside className="flex lg:flex-col overflow-x-auto no-scrollbar gap-1.5 pb-2 lg:pb-0">
             {TABS.map((t) => {
               const Icon = t.icon;
               const isActive = tab === t.id;
@@ -263,26 +263,26 @@ function AdminContent() {
                 <button
                   key={t.id}
                   onClick={() => switchTab(t.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 lg:px-4 lg:py-3 rounded-xl text-sm font-medium whitespace-nowrap shrink-0 lg:w-full transition-all ${
                     isActive
                       ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/20'
-                      : 'text-neutral-700 hover:bg-white bg-transparent'
+                      : 'text-neutral-700 hover:bg-white bg-white/70 lg:bg-transparent border border-neutral-200/50 lg:border-transparent'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  {t.label}
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{t.label}</span>
                   {t.id === 'users' && (
-                    <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
+                    <span className={`ml-1.5 lg:ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
                       {users.length}
                     </span>
                   )}
                   {t.id === 'sells' && (
-                    <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
+                    <span className={`ml-1.5 lg:ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
                       {sells.length}
                     </span>
                   )}
                   {t.id === 'campuses' && (
-                    <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
+                    <span className={`ml-1.5 lg:ml-auto text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-neutral-200'}`}>
                       {campuses.length}
                     </span>
                   )}

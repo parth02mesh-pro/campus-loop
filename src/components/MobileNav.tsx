@@ -1,19 +1,66 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, Compass, PlusCircle, MessageCircle, User } from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Home, Compass, PlusCircle, MessageCircle, User, Shield, Users, ShoppingBag, Package, School } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function MobileNav() {
+function MobileNavContent() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  const currentTab = searchParams.get('tab');
+
+  if (pathname === '/admin/login') {
+    return null;
+  }
+
+  if (user?.role === 'admin') {
+    const adminItems = [
+      { href: '/admin', tabId: 'dashboard', icon: Shield, label: 'Admin' },
+      { href: '/admin?tab=users', tabId: 'users', icon: Users, label: 'Users' },
+      { href: '/admin?tab=sells', tabId: 'sells', icon: ShoppingBag, label: 'Sells' },
+      { href: '/admin?tab=products', tabId: 'products', icon: Package, label: 'Listings' },
+      { href: '/admin?tab=campuses', tabId: 'campuses', icon: School, label: 'Campuses' },
+    ];
+
+    return (
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-purple-200/80 shadow-lg safe-bottom">
+        <div className="grid grid-cols-5 gap-1 px-1 py-1.5">
+          {adminItems.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              pathname === '/admin' &&
+              ((item.tabId === 'dashboard' && !currentTab) || currentTab === item.tabId);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl transition-colors',
+                  isActive ? 'text-purple-700 bg-purple-50 font-semibold' : 'text-neutral-500 hover:text-neutral-900'
+                )}
+              >
+                <Icon className={cn('w-4 h-4', isActive && 'scale-110 text-purple-700')} />
+                <span className="text-[10px] font-medium truncate max-w-[55px]">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    );
+  }
 
   const items = [
     { href: '/', icon: Home, label: 'Home' },
     { href: '/explore', icon: Compass, label: 'Explore' },
     { href: '/sell', icon: PlusCircle, label: 'Sell', isSell: true },
     { href: '/messages', icon: MessageCircle, label: 'Messages' },
-    { href: '/profile', icon: User, label: 'Profile' },
+    { href: user ? '/dashboard' : '/login', icon: User, label: user ? 'Account' : 'Login' },
   ];
 
   return (
@@ -53,5 +100,13 @@ export function MobileNav() {
         })}
       </div>
     </nav>
+  );
+}
+
+export function MobileNav() {
+  return (
+    <Suspense fallback={null}>
+      <MobileNavContent />
+    </Suspense>
   );
 }

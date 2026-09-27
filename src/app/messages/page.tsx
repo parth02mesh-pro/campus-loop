@@ -265,8 +265,6 @@ function MessagesContent() {
                     </div>
                   </div>
                 </div>
-                  </div>
-                </div>
 
                 {activeConvo?.product && (
                   <Link

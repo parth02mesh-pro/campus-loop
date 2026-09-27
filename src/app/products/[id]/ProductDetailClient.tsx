@@ -530,8 +530,8 @@ export function ProductDetailClient({ product, images, seller, campus, category,
             ) : (
               <div className="grid md:grid-cols-[240px_1fr] gap-4">
                 {/* Conversation List for Seller */}
-                <div className="border border-neutral-200 rounded-xl overflow-hidden divide-y divide-neutral-100 max-h-[360px] overflow-y-auto">
-                  <div className="p-2.5 bg-neutral-50 text-xs font-semibold text-neutral-600">
+                <div className="flex md:flex-col overflow-x-auto no-scrollbar gap-2 md:gap-0 border border-neutral-200 rounded-xl p-1.5 md:p-0 md:divide-y md:divide-neutral-100 max-h-[360px] md:overflow-y-auto bg-neutral-50/50">
+                  <div className="hidden md:block p-2.5 bg-neutral-50 text-xs font-semibold text-neutral-600">
                     Interested Buyers ({conversations.length})
                   </div>
                   {conversations.map((c) => {
@@ -540,18 +540,18 @@ export function ProductDetailClient({ product, images, seller, campus, category,
                       <button
                         key={c.id}
                         onClick={() => setSelectedConvoId(c.id)}
-                        className={`w-full text-left p-3 flex items-center gap-2.5 transition-colors ${
-                          isSelected ? 'bg-brand-50 border-l-4 border-brand-600' : 'hover:bg-neutral-50'
+                        className={`text-left p-2.5 md:p-3 flex items-center gap-2 rounded-lg md:rounded-none shrink-0 md:shrink transition-colors ${
+                          isSelected ? 'bg-brand-50 md:border-l-4 md:border-brand-600 text-brand-900 border border-brand-200 md:border-transparent' : 'bg-white hover:bg-neutral-50 border border-neutral-200 md:border-transparent'
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                           {c.otherUser?.fullName?.[0]?.toUpperCase() || 'S'}
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-semibold text-neutral-900 truncate">
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold truncate max-w-[110px] md:max-w-none">
                             {c.otherUser?.fullName || 'Student'}
                           </div>
-                          <div className="text-[11px] text-neutral-500 truncate">
+                          <div className="text-[10px] text-neutral-400 truncate hidden md:block">
                             {c.messages?.[c.messages.length - 1]?.content || 'Started conversation'}
                           </div>
                         </div>
