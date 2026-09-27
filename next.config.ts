@@ -10,17 +10,21 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (backendUrl && backendUrl.trim().length > 0) {
-      const cleanUrl = backendUrl.replace(/\/+$/, '');
-      return [
-        {
-          source: "/api/:path*",
-          destination: `${cleanUrl}/api/:path*`,
-        },
-      ];
+    let backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
+    if (!backendUrl) return [];
+
+    // Ensure destination starts with protocol for Next.js rewrite validation
+    if (!backendUrl.startsWith("http://") && !backendUrl.startsWith("https://")) {
+      backendUrl = `https://${backendUrl}`;
     }
-    return [];
+    const cleanUrl = backendUrl.replace(/\/+$/, '');
+
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${cleanUrl}/api/:path*`,
+      },
+    ];
   },
   async headers() {
     return [
