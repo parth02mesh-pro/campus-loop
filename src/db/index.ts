@@ -3,10 +3,12 @@ import { Pool } from "pg";
 import { ensureDatabaseSchema } from "./auto-migrate";
 import * as schema from "./schema";
 
-const databaseUrl = process.env.DATABASE_URL;
+const hasRealDbUrl = Boolean(process.env.DATABASE_URL && process.env.DATABASE_URL.trim().length > 0);
+const databaseUrl = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/postgres";
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+if (!hasRealDbUrl) {
+  // Graceful warning during build time instead of hard crash
+  console.warn("⚠️ Warning: DATABASE_URL is not set. Ensure DATABASE_URL is added to your environment variables for runtime queries.");
 }
 
 const globalForDb = globalThis as typeof globalThis & {
@@ -29,17 +31,21 @@ export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
     connectionString: databaseUrl,
-    ssl: databaseUrl.includes("neon.tech") || databaseUrl.includes("sslmode=require")
-      ? { rejectUnauthorized: false }
-      : undefined,
+    ssl:
+      databaseUrl.includes("neon.tech") ||
+      databaseUrl.includes("sslmode=require") ||
+      databaseUrl.includes("railway.app") ||
+      databaseUrl.includes("supabase.co")
+        ? { rejectUnauthorized: false }
+        : undefined,
   });
 
 if (process.env.NODE_ENV !== "production") {
   globalForDb.__arenaNextJsPostgresqlPool = pool;
 }
 
-// Automatically initialize schema and auto-migrate any new columns on database connection
-if (!globalForDb.__arenaAutoMigratePromise) {
+// Automatically initialize schema and auto-migrate any new columns on database connection only if real DATABASE_URL is present
+if (!globalForDb.__arenaAutoMigratePromise && hasRealDbUrl) {
   globalForDb.__arenaAutoMigratePromise = ensureDatabaseSchema(pool).catch((err) => {
     console.error("Auto-migration initialization error:", err);
   });
@@ -47,5 +53,3 @@ if (!globalForDb.__arenaAutoMigratePromise) {
 
 export { ensureDatabaseSchema };
 export const db = drizzle(pool, { schema });
-
-
